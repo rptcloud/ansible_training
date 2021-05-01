@@ -1,0 +1,23 @@
+---
+# Create required users
+
+- name: Create required users
+  hosts: all
+  vars:
+   usernames:  
+    - devs
+    - security
+    - admins
+
+
+  tasks:
+   - group:
+      name: web
+      state: present
+
+   - user:
+      name: "{{ item }}"
+      state: present
+      groups: web
+      append: yes
+     with_items: "{{ usernames }}"

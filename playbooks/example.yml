@@ -1,0 +1,10 @@
+---
+- name: New user is created
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: User gets created
+      user:
+        name: test
+        state: present

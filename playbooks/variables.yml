@@ -1,0 +1,18 @@
+---
+# Variables playbook
+
+- name: This playbook will remove tcpdump (if installed) from servers without admin in their hostnames
+  hosts: all
+  become: yes
+  tasks:
+   - name: Remove tcpdump from all but admin servers
+     yum:
+      name: tcpdump
+      state: absent
+     when: "'admin' not in inventory_hostname"
+
+   - name: Make sure git is installed only on Red Hat servers
+     yum:
+      name: git
+      state: present
+     when: ansible_facts['os_family'] == 'RedHat'
