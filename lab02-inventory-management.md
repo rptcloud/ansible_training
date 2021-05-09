@@ -107,7 +107,7 @@ drwxr-xr-x 8 ansible ansible 4096 May  6 15:09 ..
 Once verified, we will need to push our public key out to each of the four target EC2 instances:
 
 ```shell
-ssh-copy-id ~/.ssh/id_rsa.pub user@host
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@host
 ```
 Make sure that you subsitute your `user` for your workstation's user name, and the `host` for the remote host's IP address.  
 
@@ -139,12 +139,14 @@ Now that we can remotely connect to these servers manually through SSH, this als
 ### Step 2.4.1
 Run the following command to ping the hosts:
 ```shell
-ansible -i ./hosts all -m ping
+ansible -i ./hosts all -m ping -u <user>
 ```
 
 The `-i` flag tells ansible to look for a hosts file, and entering `hosts` afterwards points it specifically to a file called `hosts` in your current directory.  `all` tells Ansible to look at all of the entries within that inventory file.
 
 The `-m` flag tells ansible to run a `module` called `ping`.  We will go over this in greater detail in a future lab.  Just know for now that ansible is going to establish a connection to these servers over ssh and return some information if that connection is successful.
+
+The `-u` flag tells ansible which user will be running the command.  This user must have an SSH connection to the remote host.  For this example, the user will be the one that you pushed your ssh keys to in step 2.3.2.
 
 ### Step 2.4.2
 Review your results to make sure that you ansible was able to successfully return the correct results.   You should see the word `pong` returned for each server where a connection was successful.
