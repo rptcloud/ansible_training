@@ -30,11 +30,11 @@ cd roles; mkdir webserver database
 Next, we will have to create the correct role subdirectories for each new role:
 
 ```shell
-cd /workstation/ansible/roles/webserver; mkdir files handlers meta tasks templates vars
+cd /workstation/ansible/roles/webserver; mkdir files handlers meta tasks vars
 ```
 
 ```shell
-cd /workstation/ansible/roles/database; mkdir files handlers meta tasks templates vars
+cd /workstation/ansible/roles/database; mkdir files handlers meta tasks vars
 ```
 
 ## Task 2: Populate webserver role directories with needed information
@@ -115,9 +115,6 @@ And let's add the specific webserver tasks from our last playbook to this file:
 Note that we changed the relative file path of the `index.html` file to the new `files` directory for the role.
 
 ### Step 7.2.5
-`Templates` are not part of this lab, and we will not be covering them just yet.  Just know that we can create and apply specific kinds of templates to our roles using Jinja2.  No file needs to be added here.
-
-### Step 7.2.6
 `Vars` are for variables.  As you can see in our `tasks` step, we are still declaring our variables in our tasks.  We will need to create a new file to contain our variables and their values:
 
 ```shell
@@ -196,10 +193,8 @@ Remember from the end of the last lab how we discussed the potential room for er
 - `current_state` changed to `db_state`
 - `current_status` changed to `db_status`
 
-### Step 7.3.5
-`Templates` - As with the webserver role, we will not yet be covering templates.  This step can be skipped.
 
-### Step 7.3.6
+### Step 7.3.5
 `Vars` - As before, we will need to create a new variable file.  As mentioned in the last step, we adjusted the names of the variables, so that will need to be reflected in this variables file as well.
 
 ```shell
