@@ -89,11 +89,15 @@ You should now have a working Ansible directory set up, as well as the Ansible s
 
 Looking at the output of the `ansible --version` command, we can see that Ansible already specificied a default location for our `ansible.cfg` file.  It should look something like this:
 
-`config file = /etc/ansible/ansible.cfg`
+```shell
+config file = /etc/ansible/ansible.cfg
+```
 
 Let's go ahead and take a look at that file in order to get a feel for what Ansible is looking for during runtime:
 
-`cat /etc/ansible/ansible.cfg`
+```shell
+head -n 30 /etc/ansible/ansible.cfg
+```
 
 You will notice that almost every single line of this config file is commented out.  This is fine, as most of this information will be overridden during runtime for a typical Ansible deployment.  However, notice this block of information:
 
