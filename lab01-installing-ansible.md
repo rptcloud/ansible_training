@@ -65,6 +65,11 @@ This will install the Ansible software on your workstation.  From here, you shou
 
 ```shell
 ansible --version
+```
+
+And your output will look like this:
+
+```
 ansible 2.9.21
   config file = /etc/ansible/ansible.cfg
   configured module search path = [u'/home/ansible/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
