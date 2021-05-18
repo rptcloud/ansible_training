@@ -41,7 +41,7 @@ echo "This file will be used to test the copy module" > files/ansibleTest.txt
 
 ### Step 4.2.2
 
-Now that we have a file, let's try to copy it to one of our hosts in the `webservers` group:
+Now that we have a file, let's try to copy it to one of our hosts in the `linux` group:
 
 ```shell 
 ansible -i host webservers -m copy -a 'src=/workstation/ansible/files/ansibleTest.txt dest=/tmp' -u <user>
@@ -121,7 +121,7 @@ Take a moment to look through the documentation for `file` to see if you can det
 If you guessed that you will need both the `path` and the `state` options, you are correct!  Your full command should look like this:
 
 ```shell
-ansible -i host webservers -m file -a 'path=/tmp/ansibleTest.txt state=absent' -u rpt
+ansible -i host linux -m file -a 'path=/tmp/ansibleTest.txt state=absent' -u rpt
 ```
 And you should see something alont the lines of this for your output:
 
@@ -154,7 +154,7 @@ In order to do this, we'll need to use the `apt` module.  The reason that we are
 If you'd like, you can take a minute or to to look through the ansible-docs page for `apt`.  If not, this command should work for you.  Take note, because there are a few new options that we'll be introducing with this step:
 
 ```shell
-ansible -i hosts webservers -m apt -a 'name=nginx state=present' -u <user> -b -K
+ansible -i hosts linux -m apt -a 'name=nginx state=present' -u <user> -b -K
 ```
 Notice that we have both the `-b` and `-K` options.  The `-b` option stands for `become`, which tells Ansible to become the root user when running the command.  The `-K` option adds a prompt when running the command which allows you to manually enter your password, which is necessary when becoming the root user, unless your user is currently set up to run sudo commands without the need for a password.
 
@@ -167,7 +167,7 @@ Perhaps we want to ensure that a service is running on a remote host.  We can ru
 To make sure a service is started, run the `service` module like this:
 
 ```shell
-ansible -i hosts webservers -m service -a 'name=nginx state=started' -u rpt -b -K
+ansible -i hosts linux -m service -a 'name=nginx state=started' -u rpt -b -K
 ```
 This should return a green status indicating that nothing was changed and that the current status already matches what you're telling Ansible to do.
 
@@ -175,7 +175,7 @@ This should return a green status indicating that nothing was changed and that t
 Let's go ahead and stop the Nginx service, as we'll be more formally installing it in a future lab.  This is simply the same command, but change the state option to `state=stopped`.
 
 ```shell
-ansible -i hosts webservers -m service -a 'name=nginx state=stopped' -u rpt -b -K
+ansible -i hosts linux -m service -a 'name=nginx state=stopped' -u rpt -b -K
 ```
 
 ## Task 5
@@ -184,5 +184,5 @@ ansible -i hosts webservers -m service -a 'name=nginx state=stopped' -u rpt -b -
 Now that we stopped the service, let's go ahead and remove it altogether.  It should be the same command that we just ran to install it, but change the state to be `state=absent`.
 
 ```shell
-ansible -i hosts webservers -m apt -a 'name=nginx state=absent' -u <user> -b -K
+ansible -i hosts linux -m apt -a 'name=nginx state=absent' -u <user> -b -K
 ```
