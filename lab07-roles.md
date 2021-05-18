@@ -6,12 +6,12 @@ Roles allow a far greater amount of reusability with our code by allowing us to 
 
 Duration: 30-40 minutes
 
-- Task 1: Create new roles directories for webserver and database
-- Task 2: Populate webserver role directories with needed information
-- Task 3: Populate database role directories with needed information
+- Task 1: Create new roles directories for linux and windows
+- Task 2: Populate linux role directories with needed information
+- Task 3: Populate windows role directories with needed information
 - Task 4: Create new main.yml file that handles running the roles
 
-## Task 1: Create new roles directories for webservers and dbservers
+## Task 1: Create new roles directories for linux and windows
 The first thing that we'll have to do is create directories for our new roles to live in.  Ansible expects and interprets a specific directory structure for roles.
 ### Step 7.1.1
 In the same directory level as your `playbook.yaml` file, create a new `roles` directory
@@ -21,31 +21,31 @@ mkdir /workstation/ansible/roles
 ```
 
 ### Step 7.1.2
-In this directory, we will be making two new directories, one for each role: `webserver` and `database`.
+In this directory, we will be making two new directories, one for each role: `linux` and `windows`.
 
 ```shell
-cd roles; mkdir webserver database
+cd roles; mkdir linux windows
 ```
 ### Step 7.1.3
 Next, we will have to create the correct role subdirectories for each new role:
 
 ```shell
-cd /workstation/ansible/roles/webserver; mkdir files handlers meta tasks vars
+cd /workstation/ansible/roles/linux; mkdir files handlers meta tasks vars
 ```
 
 ```shell
-cd /workstation/ansible/roles/database; mkdir files handlers meta tasks vars
+cd /workstation/ansible/roles/windows; mkdir files handlers meta tasks vars
 ```
 
 ## Task 2: Populate webserver role directories with needed information
-Now that we have the correct directories, let's start populating them one by one with the needed yaml files.  We'll begin with `webserver`.
+Now that we have the correct directories, let's start populating them one by one with the needed yaml files.  We'll begin with `linux`.
 ### Step 7.2.1
 We'll go one directory at a time and explain their purpose (and whether or not they are needed)
 
 `Files` - This directory is for any files that we need to include with the roles.  If you recall back to our earlier labs, we already have one file that we want to include here.  This is the `index.html` file that we used earlier.  Let's go ahead and copy it to the new files directory:
 
 ```shell
-cp /workstation/ansible/files/index.html /workstation/ansible/roles/webserver/files/index.html
+cp /workstation/ansible/files/index.html /workstation/ansible/roles/linux/files/index.html
 ```
 
 ### Step 7.2.2
@@ -54,7 +54,7 @@ cp /workstation/ansible/files/index.html /workstation/ansible/roles/webserver/fi
 Let's say that we want Nginx to restart if any change is made to the configuration.  We can make a handler for that.  First, we'll need to make a yaml file for it:
 
 ```shell
-touch /workstation/ansible/roles/webserver/handlers/main.yml
+touch /workstation/ansible/roles/linux/handlers/main.yml
 ```
 
 Let's go ahead and populate that with this code, which will prompt nginx to restart upon any updates:
@@ -76,7 +76,7 @@ Let's go ahead and populate that with this code, which will prompt nginx to rest
 `Meta` allows you to attach meta arguments to your roles at runtime.  One of the most common meta arguments are to add `dependencies` to your roles, such as ensuring that one role has already ran before this one runs.  For this step, we do not need any dependencies, but let's set up the file in case that changes in the future.
 
 ```shell
-touch workstation/ansible/roles/webserver/meta/main.yml
+touch workstation/ansible/roles/linux/meta/main.yml
 ```
 
 The contents of the file can simply be an empty dependency set:
@@ -90,7 +90,7 @@ dependencies: []
 Let's create the file:
 
 ```shell
-touch workstation/ansible/roles/webserver/tasks/main.yaml
+touch workstation/ansible/roles/linux/tasks/main.yaml
 ```
 
 And let's add the specific webserver tasks from our last playbook to this file:
@@ -104,7 +104,7 @@ And let's add the specific webserver tasks from our last playbook to this file:
 
 - name: Insert index page
   template:
-    src: /workstation/ansible/roles/webserver/files/index.html
+    src: /workstation/ansible/roles/linux/files/index.html
     dest: /usr/share/nginx/html/index.html
 
 - name: Nginx is {{current_status}}
@@ -118,7 +118,7 @@ Note that we changed the relative file path of the `index.html` file to the new 
 `Vars` are for variables.  As you can see in our `tasks` step, we are still declaring our variables in our tasks.  We will need to create a new file to contain our variables and their values:
 
 ```shell
-touch /workstation/ansible/roles/webserver/vars/main.yml
+touch /workstation/ansible/roles/linux/vars/main.yml
 ```
 
 And here, we will declare our variables as we did before:
@@ -130,41 +130,25 @@ current_status: started
 ```
 
 ## Task 3: Populate database role directories with needed information
-We will continue building out our new roles by repeating this process with the `database` role.  Let's go through the directories again and see if there is anything that we need from our previous steps:
+We will continue building out our new roles by repeating this process with the `windows` role.  Let's go through the directories again and see if there is anything that we need from our previous steps:
 
 ### Step 7.3.1
-`Files` - There are no database files that have been used so far, so we can skip this step.
+`Files` - There are no files that have been used so far, so we can skip this step.
 
 ### Step 7.3.2
-`Handlers` - We can follow the same steps as we did with the Nginx portion of this lab.  Please note that you may not actually want to have your databases restart if they are in production.  This is just a sample excercise.
+`Handlers` - We can skip this step for the Windows servers
 
-```shell
-touch /workstation/ansible/roles/database/handlers/main.yml
-```
-
-```yaml
----
-- name: Start Postgres
-  service: 
-    name: postgres 
-    state: started
-
-- name: Reload Postgres
-  service: 
-    name: postgres
-    state: reloaded
-```
 ### Step 7.3.3
 `Meta` Though we did not include this last time, we can configure a meta argument for the Postgres databse for the sake of learning.
 
 ```shell
-touch /workstation/ansible/roles/database/meta/main.yml
+touch /workstation/ansible/roles/windows/meta/main.yml
 ```
 
 ```yaml
 ---
 dependencies:
-  - {role: webservers}
+  - {role: linux}
 ```
 Again, this will not really change the functionality.  But this is what this would look like should you have dependent roles
 
@@ -177,35 +161,22 @@ touch /workstation/ansible/roles/database/tasks/main.yml
 
 ```yaml
 ---
-- name: Postgres is {{db_state}}
-  apt:
-    name: postgresql
-    state: "{{db_state}}"
+- name: Download the Apache installer
+  win_get_url:
+    url: https://archive.apache.org/dist/httpd/binaries/win32/httpd-2.2.25-win32-x86-no_ssl.msi
+    dest: C:\Users\your_user_name\Desktop\httpd-2.2.25-win32-x86-no_ssl.msi
 
-- name: Postgres is {{db_status}}
-  service:
-    name: postgresql
-    state: "{{db_status}}"
+- name: Install MSI
+  win_package: 
+    path: C:\Users\your_user_name\Desktop\httpd-2.2.25-win32-x86-no_ssl.msi
+    arguments:
+      - /install
+      - /passive
+      - /norestart
 ```
-
-Remember from the end of the last lab how we discussed the potential room for error that we gave ourselves by applying the same variable in inappropriate places?  This is a good place to fix that.  Note how we changed the variables above:
-
-- `current_state` changed to `db_state`
-- `current_status` changed to `db_status`
-
 
 ### Step 7.3.5
-`Vars` - As before, we will need to create a new variable file.  As mentioned in the last step, we adjusted the names of the variables, so that will need to be reflected in this variables file as well.
-
-```shell
-touch /workstation/ansible/roles/database/vars/main.yml
-```
-
-```yaml
----
-db_state: present
-db_status: started
-```
+`Vars` - Since we are not using variables for the Windows hosts, we can skip this step here.
 
 ## Task 4: Create new main.yml file that handles running the roles
 Now that we have successfully built out our roles, it's time that we made the final yaml file that calls them.  This will live in the same directory that your previous playbook lived in (/workstation/ansible)
@@ -222,34 +193,34 @@ Now we will need to build out the information for the webserver role within this
 
 ```yaml
 ---
-- hosts: webservers
+- hosts: linux
   become: yes
   user: rpt
   roles:
-    - webserver
+    - linux
 ```
 Much like before, we are declaring a few things here:
 1. `hosts` - these are simply the names of the host groups that we would like to apply our changes to.
 2. `become` - as before, we need to declare above that we will be executing these as root
 3. `user` - This will supercede any information that you have in your `ansible.cfg` file.  This will allow you to run commands in a more granular fashion if you have strict policies on which users can run which tasks.
-4. `roles` - Here, you can define any and all roles you would like to apply to each of the above `hosts` groups.  As this is simply our small Nginx installation, we only need to run the `webserver` role.
+4. `roles` - Here, you can define any and all roles you would like to apply to each of the above `hosts` groups.  As this is simply our small Nginx installation, we only need to run the `linux` role.
 
 ### Step 7.4.3
-As with the `webserver` role, let's add the same with the `database` role.  The full code for your `main_playbook.yml` file should read:
+As with the `linux` role, let's add the same with the `windows` role.  The full code for your `main_playbook.yml` file should read:
 
 ```yaml
 ---
-- hosts: webservers
+- hosts: linux
   become: yes
   user: rpt
   roles:
-    - webserver
+    - linux
 
-- hosts: dbservers
+- hosts: windows
   become: yes
   user: rpt
   roles:
-    - dbservers
+    - windows
 ```
 
 ### Step 7.4.4
@@ -262,20 +233,20 @@ ansible-playbook main_playbook.yml
 You should now see the full run along with all of the steps from both of the roles cycling through.
 
 ### Step 7.4.5
-If you remember back in step 7.3.3, we put a meta argument in for the database role.  We made that role contingent up the `webserver` role running.  If you pay close attention to the output of your last command, you'll see that the `webserver` role is running twice because of this.  There are two ways we can handle this.  
+If you remember back in step 7.3.3, we put a meta argument in for the `windows` role.  We made that role contingent up the `linux` role running.  If you pay close attention to the output of your last command, you'll see that the `linux` role is running twice because of this.  There are two ways we can handle this.  
 
 1. We can remove that meta argument and keep our `main_playbook.yml` the same
-2. We can remove the block in `main_playbook.yml` that calls the webserver role, since it is now redundant.  
+2. We can remove the block in `main_playbook.yml` that calls the `linux` role, since it is now redundant.  
 
 In production, we would probably decouple the two roles by removing the meta argument, since it's just an example of what can be done here.  However, for the sake of showing how these roles can be nested, let's go ahead and remove that block from `main_playbook.yml` and re-run the code.  This should essentially revert the entire playbook run to only the steps that were present before the refactor:
 
 ```yaml
 ---
-- hosts: dbservers
+- hosts: windows
   become: yes
   user: rpt
   roles:
-    - dbservers
+    - windows
 ```
 
 Go ahead and run your code one last time and pay attention to the output.  Everything should now be running exactly as expected.
