@@ -35,7 +35,7 @@ Now let's begin adding our code.  Best practice is to begin every playbook with 
 ```yaml
 ---
 - name: Configure Webservers
-  hosts: webservers
+  hosts: linux
   become: true
 ```
 Thinking back to our ad hoc commands, we know that we want to target the host group webservers and that we'll need to become root to complete the install.  The code block above illustrates what that will look like in a playbook.  
@@ -75,7 +75,7 @@ And lastly, let's go ahead and add another task to our playbook that uses the `t
 ```yaml
 ---
 - name: Configure Webservers
-  hosts: webservers
+  hosts: linux
   become: true
 
   tasks:
@@ -95,7 +95,7 @@ Last thing that we will do is add a block of code that tells Ansible to make sur
 ```yaml
 ---
 - name: Configure Webservers
-  hosts: webservers
+  hosts: linux
   become: true
 
   tasks:
@@ -162,7 +162,7 @@ Looking at these one at a time:
 - `PLAY [Configure Webservers]` - This is telling you which of your configured plays is currently running.
   - As we only have one play currently, this is the only one that ran.
 - `TASK [Gathering Facts]` - This is checking your Ansible code to ensure that everything compiles correctly and your hosts are reachable.
-  - As you can see, this should be returning just the IP addresses of the two hosts that were labeled as `webservers`.  Your `dbservers` should not have been touched.
+  - As you can see, this should be returning just the IP addresses of the two hosts that were labeled as `linux`.  Your `windows` should not have been touched.
   - The `ok` status indicates that these hosts were reaachable.
 - `TASK [Add Nginx]` - This is the task that configured in our playbook.  This is installing Nginx on the remote webserver.
   - As you can see, the output here has both hosts listed as `changed`.  This is because we did not have Nginx installed on our host, and Ansible went out and applied that for us.
@@ -185,7 +185,7 @@ Let's go ahead and edit our existing `playbook.yaml` file and add a new code blo
 ```yaml
 ---
 - name: Configure Webservers
-  hosts: webservers
+  hosts: linux
   become: true
 
   tasks:
@@ -204,13 +204,13 @@ Let's go ahead and edit our existing `playbook.yaml` file and add a new code blo
         name: nginx
         state: started
 
-- name: Configure Database Servers
-  hosts:  dbservers
+- name: Configure Windows Servers
+  hosts:  windows
   become: true
   ```
   
 ### Step 5.3.2
-Let's go ahead and add the rest of our code.  This should be pretty familiar to you at this point in time.  We'll just be adding code blocks in to install the `postgresql` application with the `apt` module, and making sure that it is turned on with the `service` module:
+Let's go ahead and add the rest of our code.  This should be pretty familiar to you at this point in time.  We'll just be adding code blocks in to download and install the `Apache` application with the `win_get_url` and `win_package` modules.
 
 ```yaml
 ---
@@ -234,20 +234,21 @@ Let's go ahead and add the rest of our code.  This should be pretty familiar to 
         name: nginx
         state: started
 
-- name: Configure Database Servers
-  hosts:  dbservers
-  become: true
-
+- name: Installing Apache MSI 
+  hosts: windows
   tasks:
-    - name: Add PostgreSQL
-      apt:
-        name: postgresql
-        state: present
+    - name: Download the Apache installer
+      win_get_url:
+        url: https://archive.apache.org/dist/httpd/binaries/win32/httpd-2.2.25-win32-x86-no_ssl.msi
+        dest: C:\Users\your_user_name\Desktop\httpd-2.2.25-win32-x86-no_ssl.msi
 
-    - name: Start Postgres
-      service:
-        name: postgresql
-        state: started
+    - name: Install MSI
+      win_package: 
+        path: C:\Users\your_user_name\Desktop\httpd-2.2.25-win32-x86-no_ssl.msi
+        arguments:
+          - /install
+          - /passive
+          - /norestart
 ```
 
 ### Step 5.3.3.
@@ -257,8 +258,9 @@ At this point in time, you can re-run your code.  You can use the exact same com
 Let's go ahead and review the output again.  We'll only be looking at the relevant bits of information to avoid redundancy:
 
 - `PLAY [Configure Database Servers]` - As you can see, we now have a second play added to our output
-- `TASK [Gathering Facts]` - Pay attention here.  The IP addresses listed for this play should be the IPs configured in your `dbservers` host group.
-- `TASK [Add Postgres]` - Again, this should have returned a `changed` instead of `ok`, as we are installing PostgreSQL for the first time.
+- `TASK [Gathering Facts]` - Pay attention here.  The IP addresses listed for this play should be the IPs configured in your `windows` host group.
+- `TASK [Download the Apache installer]` - Again, this should have returned a `changed` instead of `ok`, as we are downloading Apache for the first time.
+- `TASK [Install MSI]` - This should be changed, since we are installing Apache for the first time.
 - `PLAY RECAP` - You should now see all four of your servers listed in the output here.  
 
 At this point, we should have a fully functioning Ansible playbook that configures both your web servers and your database servers.  More to the point, we now have usable code that we can store in source control and use as a part of our provisioning pipelines.  This is the first step towards turning Ansible from a useful command line utility into a robust Infrastructure as Code tool.  In future labs, we will discuss how to make this even more robust.
