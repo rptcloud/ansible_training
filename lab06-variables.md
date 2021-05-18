@@ -85,10 +85,10 @@ mkdir /workstation/ansible/group_vars
 ```
 
 ### Step 6.2.2
-Now that we have that, we'll also have to create a couple of YAML files for our variables to live in.  These names must match the names of our existing node groups:
+Now that we have that, we'll also have to create a YAML file for our variables to live in.  These names must match a name of our existing node groups:
 
 ```shell
-touch /workstation/ansible/group_vars/webservers.yaml; touch /workstation/ansible/group_vars/dbservers.yaml
+touch /workstation/ansible/group_vars/webservers.yaml;
 ```
 
 ### Step 6.2.3
@@ -110,15 +110,13 @@ Let's go ahead and refactor our code by variablizing these lines like so:
         name: nginx
         state: "{{current_status}}"
 ```
-Make sure to do this for both the `Configure Webservers` and `Configure Database Servers` blocks of code.
+Make sure to do this for the `Configure Webservers` block of code.
 
 ### Step 6.2.4
 Since we'll be variablizing the state and status of these services, let's go ahead and change the names to more acccurately reflect what will be happening.  Change the `name` of each of the following `tasks` to this:
 
 - `Install Nginx` should now be called `Nginx is {{current_state}}`
 - `Start Nginx` should now be called `Nginx is {{current_status}}`
-- `Install Postgres` should now be called `Postgres is {{current_state}}`
-- `Start Postgres` should now be called `Postgres is {{current_status}}`
 
 ### Step 6.2.5
 Now that our playbook is ready to accept variables, let's go back to the host group variable files that we created earlier and add some values to them.
@@ -130,12 +128,12 @@ current_state: present
 current_status: started
 ```
 
-Your full playbook code should look like this:
+Your `Configure Webservers` playbook code should look like this:
 
 ```yaml
 ---
 - name: Configure Webservers 
-  hosts: webservers
+  hosts: linux
   become: True
  
   tasks:
@@ -152,22 +150,7 @@ Your full playbook code should look like this:
     - name: Nginx is {{current_status}}
       service:
         name: nginx
-        state: "{{current_status}}"
-
-- name: Configure Databases
-  hosts: dbservers
-  become: True
-
-  tasks:
-    - name: Postgres is {{current_state}}
-      apt:
-        name: postgresql
-        state: "{{current_state}}"
-
-    - name: Postgres is {{current_status}}
-      service:
-        name: postgresql
-        state: "{{current_status}}"
+        state: "{{current_status}}
 ```
 ### Step 6.2.6
 You can now re-run your playbook.  Your code should compile successfully, with the only difference being that the names of the individual tasks have changed to more accurately reflect what is happening in the playbook itself.
@@ -184,10 +167,10 @@ mkdir /workstation/ansible/host_vars
 ```
 
 ### Step 6.3.2
-We'll need to create some files to populate these directories.  As with group vars, the host vars must match the exact name of the individual hosts that you have in your host file.  These can be either FQDNs, IPs, or however else you have configured your host file to detect hosts.  Since we've been using IPs so far, let's stick with that.  Create a host file variable for one of your webservers and one of your database servers:
+We'll need to create some files to populate these directories.  As with group vars, the host vars must match the exact name of the individual hosts that you have in your host file.  These can be either FQDNs, IPs, or however else you have configured your host file to detect hosts.  Since we've been using IPs so far, let's stick with that.  Create a host file variable for one of your Linux servers:
 
 ```shell
-touch /workstation/ansible/host_vars/54.164.149.176.yml; touch /workstation/ansible/host_vars/52.91.30.97.yml
+touch /workstation/ansible/host_vars/54.164.149.176.yml;
 ```
 
 You will need to ensure that you are using your own values for this and not the ones in this example.
@@ -203,14 +186,14 @@ current_status: stopped
 Notice above that we have the value of these variables set to `stopped` for the status.  Make sure that your `group_vars` values are set to `started` so that you can see how the precedence will work here.
 
 ### Step 6.3.4
-Go ahead and run your playbook again.  You should see that one set of your webservesr and one of your dbservers have switched statuses while the other two remain the same.
+Go ahead and run your playbook again.  You should see that one set of your `linux` servers have switched statuses while the other remains the same.
 
 
 ## Task 4: Create playbook variables and test
 Now that we've seen how we can assign individual variables to either a host group or an individual host, let's see what happens when we assign it directly to the playbook itself.
 
 ### Step 6.4.1
-Our playbook is already set up to accept variables.  However, we can also define the values of the variables directly in the playbook itself.  Add the following blocks to both the `Configure Webservers` and `Configure Database Servers` plays:
+Our playbook is already set up to accept variables.  However, we can also define the values of the variables directly in the playbook itself.  Add the following blocks to the `Configure Webservers` code:
 
 
 ```yaml
@@ -223,13 +206,6 @@ Our playbook is already set up to accept variables.  However, we can also define
     current_status: started
 
 ...
-
-- name: Configure Databases
-  hosts: dbservers
-  become: True
-  vars:
-    current_state: present
-    current_status: started
 ```
 
 ### Step 6.4.2
@@ -241,10 +217,6 @@ The highest level of priority for variables are those run directly on the comman
 ### Step 6.5.1
 At this point in time, all of your services should be turned on.  Run the following command:
 ```shell
-ansible-playbook playbook.yaml --extra-vars 'current_status=stopped'
+ansible-playbook playbook.yaml linux --extra-vars 'current_status=stopped'
 ```
-You should see that the value for this variable superceded all others and stopped all of your Nginx AND your Postgres services.  Because we named our variables the exact same thing, we were able to stop all of them at once.  
-
-This should be a bit of red flag to you. It's pretty easy to envision a scenario where a less experienced technician could accidentally run this command thinking that they will only be stopping one service, but may accidentally end up causing cascading issues in production.  
-
-You must be very careful when naming your variables and using command line arguments because of this.
+You should see that the value for this variable superceded all others and stopped all of your Nginx services.  Because we named our variables the exact same thing, we were able to stop all of them at once.
