@@ -137,7 +137,7 @@ There is a file in the `files` directory of this repository called `configureWin
 Open PowerShell as an administrator.  Navigate to the file that you just saved, and execute the script:
 
 ```powershell
-./configureWinRM.ps1`
+./configureWinRM.ps1
 ```
 
 You should now have WinRM set up on your Windows host.
