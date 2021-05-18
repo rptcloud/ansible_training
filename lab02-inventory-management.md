@@ -219,14 +219,14 @@ Review your results to make sure that you ansible was able to successfully retur
 Now that we've verified that Ansible is able to connect to our hosts, let's edit our host file a bit to logically group our servers in way that makes sense.
 Going forward, we will be provisioning two of these servers to be web servers and two of them to be database servers.  Let's go ahead and denote that in our hosts file.
 ### Step 2.6.1
-In VSCode, edit your host file to include a named block of hosts, denoted by a set of square brackets:
+In VSCode, edit your host file to include a named block of hosts for your Linux servers.
 
 ```shell
-[webservers]
+[linux]
 172.17.0.1 
 172.17.0.2
 
-[dbservers]
+[windows]
 172.17.0.3 
 172.17.0.4 
 ```
@@ -234,10 +234,10 @@ In VSCode, edit your host file to include a named block of hosts, denoted by a s
 This will create two blocks of hosts that can be called simply by stating the name of the host block.  For example:
 
 ```shell
-ansible -i ./hosts webservers -m ping
+ansible -i ./hosts linux -m ping
 ```
 
-This should only run the ping module on the two hosts in the `[webservers]` block.
+This should only run the ping module on the two hosts in the `[linux]` block.
 
 ### Step 2.6.2
 While we can logically denote these hosts by whether or not they are web servers or database servers, what if one of each host is production and one is development?  In a typical workflow, we'll usually be running updates on development first in order to ensure that the changes won't break anything.  However, there are times when we want to apply changes wholesale to just webservers regardless of environment.  Ansible allows us to make multiple logical groupings of servers using the same hosts.
@@ -245,11 +245,11 @@ While we can logically denote these hosts by whether or not they are web servers
 Let's create two new host blocks using the same four hosts, one for production and one for development.  Let's include one web host and one database host in each of the new blocks:
 
 ```shell
-[webservers]
+[linux]
 172.17.0.1 
 172.17.0.2
 
-[dbservers]
+[windows]
 172.17.0.3 
 172.17.0.4
 
@@ -267,39 +267,3 @@ We can now test our changes against just the `[production]` or `[development]` h
 ```shell
 ansible -i ./hosts production -m ping
 ```
-
-### Step 2.6.3
-Assuming everything in our host file is correct and currently reflects our environment, let's assume that all of these servers are in the `us-east-1` region of AWS.  Let's also assume that this host file will be appended in the future to include hosts that are in `us-east-2`.  Let's create one last host block in our host file to denote that.
-
-This time, we are going to use the concept of `ranges` in order to simplify our new host block.  As you probably noticed, your web servers were created with sequential IP addresses.  Let's leverage this in our next code block and save ourselves some time:
-
-```shell
-[webservers]
-172.17.0.1 
-172.17.0.2
-
-[dbservers]
-172.17.0.3 
-172.17.0.4
-
-[production]
-172.17.0.1 
-172.17.0.3 
-
-[development]
-172.17.0.2
-172.17.0.4
-
-[us-east-1]
-172.17.0.[1:4]
-```
-The `[1:4]` block tells Ansible to match every host that falls with the range specified within the square brackets.  This will match every host that we've used in this lab thus far.  
-
-Here are two more common methods of matching ranges in a host file:
-- match letters: `[A:D]`
-- match zeros: `[01:07]`
-
-### Step 2.6.4
-Let's assume that we use ephemeral servers in our AWS environment, and we can't count on the IP addresses remaining constant.  A better way of matching hosts would be with hostnames. Luckily, Ansible also allows us to match by hostname. 
-
-Using the hostnames that you copied down in `Step 2.3.3`, let's replace a few of these hosts with their hostname instead and test access again.
