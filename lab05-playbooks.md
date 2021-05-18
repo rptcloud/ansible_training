@@ -215,7 +215,7 @@ Let's go ahead and add the rest of our code.  This should be pretty familiar to 
 ```yaml
 ---
 - name: Configure Webservers
-  hosts: webservers
+  hosts: linux
   become: true
 
   tasks:
