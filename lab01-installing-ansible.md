@@ -45,7 +45,7 @@ sudo apt install python
 
 ### Step 1.3.1
 
-Now that we've verified our prequisites, we can install python.  
+Now that we've verified our prequisites, we can install Ansible.  
 
 Run the following command:
 
