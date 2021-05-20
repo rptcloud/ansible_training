@@ -121,7 +121,7 @@ Take a moment to look through the documentation for `file` to see if you can det
 If you guessed that you will need both the `path` and the `state` options, you are correct!  Your full command should look like this:
 
 ```shell
-ansible -i hosts linux -m file -a 'path=/tmp/ansibleTest.txt state=absent' -u rpt
+ansible -i hosts linux -m file -a 'path=/tmp/ansibleTest.txt state=absent' -u <user>
 ```
 And you should see something alont the lines of this for your output:
 
@@ -167,7 +167,7 @@ Perhaps we want to ensure that a service is running on a remote host.  We can ru
 To make sure a service is started, run the `service` module like this:
 
 ```shell
-ansible -i hosts linux -m service -a 'name=nginx state=started' -u rpt -b -K
+ansible -i hosts linux -m service -a 'name=nginx state=started' -u <user> -b -K
 ```
 This should return a green status indicating that nothing was changed and that the current status already matches what you're telling Ansible to do.
 
@@ -175,7 +175,7 @@ This should return a green status indicating that nothing was changed and that t
 Let's go ahead and stop the Nginx service, as we'll be more formally installing it in a future lab.  This is simply the same command, but change the state option to `state=stopped`.
 
 ```shell
-ansible -i hosts linux -m service -a 'name=nginx state=stopped' -u rpt -b -K
+ansible -i hosts linux -m service -a 'name=nginx state=stopped' -u <user> -b -K
 ```
 
 ## Task 5
