@@ -44,7 +44,7 @@ echo "This file will be used to test the copy module" > files/ansibleTest.txt
 Now that we have a file, let's try to copy it to one of our hosts in the `linux` group:
 
 ```shell 
-ansible -i host webservers -m copy -a 'src=/workstation/ansible/files/ansibleTest.txt dest=/tmp' -u <user>
+ansible -i hosts linux -m copy -a 'src=/workstation/ansible/files/ansibleTest.txt dest=/tmp' -u <user>
 ```
 
 This will copy the file `ansibleTest.txt` located in the `files` directory, which itself is located in our current working directory.  
@@ -121,7 +121,7 @@ Take a moment to look through the documentation for `file` to see if you can det
 If you guessed that you will need both the `path` and the `state` options, you are correct!  Your full command should look like this:
 
 ```shell
-ansible -i host linux -m file -a 'path=/tmp/ansibleTest.txt state=absent' -u rpt
+ansible -i hosts linux -m file -a 'path=/tmp/ansibleTest.txt state=absent' -u rpt
 ```
 And you should see something alont the lines of this for your output:
 
