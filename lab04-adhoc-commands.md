@@ -104,7 +104,7 @@ Now that we've learned how to add a file, let's take a look at how we should rem
 First, let's do a lookup on the module that will allow us to delete a file.  To save you some time, the module that you'll be looking for is simply called `file`.
 
 ```shell
-ansible-doc -l file
+ansible-doc file
 ```
 
 Here, you will see that this module does the following:
