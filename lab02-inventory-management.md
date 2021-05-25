@@ -144,7 +144,7 @@ You should now have WinRM set up on your Windows host.
 
 ### Step 2.3.4
 
-We must now install `Pywinrm` on the Windows host as well:
+We must now install `Pywinrm` on the Linux Control node as well:
 
 ```powershell
 pip install pywinrm
@@ -168,7 +168,7 @@ drwxr-xr-x 8 ansible ansible 4096 May  6 15:09 ..
 ```
 
 ### Step 2.4.2
-Once verified, we will need to push our public key out to each of the four target EC2 instances:
+Once verified, we will need to push our public key out to each of the two Linux EC2 instances:
 
 ```shell
 ssh-copy-id -i ~/.ssh/id_rsa.pub user@host
@@ -177,7 +177,7 @@ Make sure that you subsitute your `user` for your workstation's user name, and t
 
 You will likely be prompted for a password during this step.  Enter your password to complete the transaction.
 
-Repeat this step for the other three target hosts.
+Repeat this step for the other Linux managed node.
 
 ### Step 2.4.3
 Verify that you are able to access these servers without the need to enter a password.
@@ -201,10 +201,15 @@ Do this step for every server in your host file to ensure that we are able to ac
 Now that we can remotely connect to these servers manually through SSH, this also means that Ansible should be able to remotely connect as well.  Let's test this out.
 
 ### Step 2.5.1
-Run the following command to ping the hosts:
+Run the following command to ping Linux hosts:
 ```shell
-ansible -i ./hosts all -m ping -u <user>
+ansible -i ./hosts linux -m ping -u <user>
 ```
+Run the following command to ping the Windows hosts:
+```shell
+ansible -i ./hosts windows -m win_ping
+```
+
 
 The `-i` flag tells ansible to look for a hosts file, and entering `hosts` afterwards points it specifically to a file called `hosts` in your current directory.  `all` tells Ansible to look at all of the entries within that inventory file.
 
